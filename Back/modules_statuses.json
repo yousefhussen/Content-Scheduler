@@ -1,0 +1,6 @@
+{
+    "Auth": true,
+    "Post": true,
+    "Analytics": true,
+    "ActivityLog": true
+}
