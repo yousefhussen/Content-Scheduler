@@ -88,7 +88,6 @@ export class AuthService {
       .post<any>(`${this.apiUrl}/login`, { email, password })
       .pipe(
         tap((response) => {
-          
           this.checkAuthentication();
         })
       );

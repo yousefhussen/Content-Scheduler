@@ -1,90 +1,196 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-
+import { PlatformService } from '../shared/services/platform.service';
+import { PostService } from '../shared/services/post.service';
 @Component({
   selector: 'app-post-editor',
   templateUrl: './post-editor.component.html',
   styleUrls: ['./post-editor.component.css']
 })
 export class PostEditorComponent implements OnInit, OnChanges {
-statusOptions: any[] = [
-  { value: 'published', label: 'Published' },
-  { value: 'scheduled', label: 'Scheduled' },
-  { value: 'draft', label: 'Draft' }
-];
-  onPlatformsInput(event: Event) {
-    const input = event.target as HTMLInputElement | null;
-    const value = input?.value ?? '';
-    this.postForm.patchValue({
-      platforms: value.split(',').map(s => s.trim()).filter(s => s)
-    });
-  }
+  statusOptions: any[] = [
+    { value: 'published', label: 'Published' },
+    { value: 'scheduled', label: 'Scheduled' },
+    { value: 'draft', label: 'Draft' }
+  ];
+
   @Input() post: any = null; // post object for editing, or null for new
   @Output() save = new EventEmitter<any>();
   @Output() cancel = new EventEmitter<void>();
 
-  availablePlatforms: string[] = ['Facebook', 'Twitter', 'Instagram', 'LinkedIn', 'TikTok']; // Replace with your real list
-
-
+  availablePlatforms: { id: number, name: string }[] = [];
   postForm: FormGroup;
+  selectedImages: File[] = [];
+  imagePreviewUrls: string[] = [];
+  serverImageUrls: string[] = [];
+  originalScheduledTime: string | null = null;
 
-  constructor(private fb: FormBuilder) {
+
+  constructor(
+    private fb: FormBuilder,
+    private platformService: PlatformService,
+    private postService: PostService
+  ) {
+    this.platformService.getUserActivePlatforms().subscribe((data: any) => {
+      // Expecting each platform to have id and name
+      this.availablePlatforms = data.map((platform: any) => ({
+        id: platform.id,
+        name: platform.name
+      }));
+    });
+
     this.postForm = this.fb.group({
       title: ['', Validators.required],
-      content: ['', Validators.required],
-      platforms: [[], Validators.required],
+      message_content: ['', Validators.required],
+      platforms: [[], Validators.required], // store array of platform IDs
       scheduled_time: [{ value: '', disabled: true }, Validators.required],
-      status: ['published', Validators.required] // default to "Post Immediately"
+      status: ['published', Validators.required], // default to "Post Immediately"
+      images: [null] // optional image
     });
   }
 
   ngOnInit() {
-  
     if (this.post) {
       this.postForm.patchValue({
         ...this.post,
-        platforms: Array.isArray(this.post.platforms) ? this.post.platforms : []
+        platforms: Array.isArray(this.post.platforms)
+          ? this.post.platforms.map((p: any) => typeof p === 'object' ? p.id : p)
+          : []
       });
+      if (this.post.images) {
+        this.imagePreviewUrls = this.post.images;
+      }
+      if (this.post.image_url) {
+        this.serverImageUrls = this.post.image_url.split(',').map((url: any) => url.trim());
+      }
     }
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['post'] && changes['post'].currentValue) {
-      this.postForm.patchValue(this.post);
+      this.originalScheduledTime = this.post.scheduled_time || null;
+      this.postForm.patchValue({
+        ...this.post,
+        platforms: Array.isArray(this.post.platforms)
+          ? this.post.platforms.map((p: any) => typeof p === 'object' ? p.id : p)
+          : []
+      });
+      if (this.post.images) {
+        this.imagePreviewUrls = this.post.images;
+      }
+      if (this.post.image_url) {
+        this.serverImageUrls = this.post.image_url.split(',').map((url: any) => url.trim());
+      } else {
+        this.serverImageUrls = [];
+      }
     } else if (changes['post'] && !changes['post'].currentValue) {
       this.postForm.reset({
         title: '',
-        content: '',
+        message_content: '',
         platforms: [],
         scheduled_time: '',
-        status: 'draft'
+        status: 'draft',
+        images: []
       });
+      this.selectedImages = [];
+      this.imagePreviewUrls = [];
     }
   }
 
-  onPlatformToggle(platform: string, event: Event) {
+  onPlatformToggle(platformId: number, event: Event) {
     const checked = (event.target as HTMLInputElement).checked;
-    const selected = this.postForm.value.platforms || [];
+    const selected: number[] = this.postForm.value.platforms || [];
     if (checked) {
-      if (!selected.includes(platform)) {
-        this.postForm.patchValue({ platforms: [...selected, platform] });
+      if (!selected.includes(platformId)) {
+        this.postForm.patchValue({ platforms: [...selected, platformId] });
       }
     } else {
-      this.postForm.patchValue({ platforms: selected.filter((p: string) => p !== platform) });
+      this.postForm.patchValue({ platforms: selected.filter((id: number) => id !== platformId) });
+    }
+  }
+
+  onImagesSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedImages = Array.from(input.files);
+      this.postForm.patchValue({ images: this.selectedImages });
+
+      // For preview
+      this.imagePreviewUrls = [];
+      for (const file of this.selectedImages) {
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          this.imagePreviewUrls.push(e.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    } else {
+      this.selectedImages = [];
+      this.imagePreviewUrls = [];
+      this.postForm.patchValue({ images: [] });
     }
   }
 
   onSave() {
+
     if (this.postForm.valid) {
       const formValue = this.postForm.value;
-      // If editing, preserve the id
       if (this.post && this.post.id) {
         formValue.id = this.post.id;
       }
-      this.save.emit(formValue);
+
+      const formData = new FormData();
+      formData.append('title', formValue.title);
+      formData.append('message_content', formValue.message_content);
+      formData.append('status', formValue.status);
+
+      let scheduledTime = '';
+      if (
+        this.originalScheduledTime &&
+        (!formValue.scheduled_time || formValue.scheduled_time === '')
+      ) {
+        scheduledTime = this.originalScheduledTime;
+      } else if (formValue.scheduled_time) {
+        scheduledTime = formValue.scheduled_time.replace('T', ' ') + ':00';
+      }
+
+      if (scheduledTime.length > 0) {
+        formData.append('scheduled_time', scheduledTime);
+      }
+      formValue.platforms.forEach((id: number) => {
+        formData.append('platforms[]', id.toString());
+      });
+      // Append all images
+      this.selectedImages.forEach((file, idx) => {
+        formData.append('images[]', file, file.name);
+      });
+
+      // CHOOSE THE CORRECT SERVICE METHOD
+      let request$;
+      if (this.post && this.post.id) {
+        // EDIT/UPDATE
+        request$ = this.postService.updatePost(this.post.id, formData);
+      } else {
+        // CREATE/ADD
+        request$ = this.postService.savePost(formData);
+      }
+
+      request$.subscribe({
+        next: () => {
+          this.postForm.reset();
+          this.selectedImages = [];
+          this.imagePreviewUrls = [];
+          this.save.emit(formValue);
+        },
+        error: (err) => {
+          alert(err.message);
+        }
+      });
     } else {
+      console.log(this.postForm.errors);
       this.postForm.markAllAsTouched();
     }
+
   }
 
   onStatusChange(status: string) {

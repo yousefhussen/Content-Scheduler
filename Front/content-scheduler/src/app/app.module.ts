@@ -21,6 +21,8 @@ import { RegisterComponent } from './pages/register/register.component';
 import { CalendarListComponent } from './calendar-list/calendar-list.component';
 import { PublishComponent } from './publish/publish.component';
 import { PostEditorComponent } from './post-editor/post-editor.component';
+import { PlatformsComponent } from './platforms/platforms.component';
+import { LogsComponent } from './logs/logs.component';
 
 
 
@@ -37,6 +39,8 @@ import { PostEditorComponent } from './post-editor/post-editor.component';
     CalendarListComponent,
     PublishComponent,
     PostEditorComponent,
+    PlatformsComponent,
+    LogsComponent,
     
   ],
   imports: [

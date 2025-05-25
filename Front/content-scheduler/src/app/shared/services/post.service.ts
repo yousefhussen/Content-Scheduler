@@ -18,4 +18,24 @@ export class PostService {
   getPosts() {
     return this.http.get<{data: Post[]}>( `${environment.apiUrl}/posts`);
   }
+
+  publishPost(id: number) {
+    return this.http.put<{data: Post }>(`${environment.apiUrl}/posts/${id}/publish`, {} );
+  }
+
+
+  savePost(post: FormData) {
+    return this.http.post<{data: Post}>(`${environment.apiUrl}/posts`, post );
+  }
+  updatePost(id: number, post: FormData) {
+    return this.http.post<{data: Post}>(`${environment.apiUrl}/posts/${id}`, post );
+  }
+
+  getLogs(page: number = 1) {
+    return this.http.get<any>(`${environment.apiUrl}/activitylog?page=${page}`);
+  }
+
+  deletePost(id: number) {
+    return this.http.delete<{message: string}>(`${environment.apiUrl}/posts/${id}`);
+  }
 }

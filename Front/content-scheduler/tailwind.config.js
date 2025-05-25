@@ -1,5 +1,13 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  variants: {
+    extend: {
+      translate: ['checked'],
+      backgroundColor: ['checked'],
+    },
+    
+  },
+  mode: 'jit',
   content: ["./src/**/*.{html,ts}"],
   theme: {
     extend: {

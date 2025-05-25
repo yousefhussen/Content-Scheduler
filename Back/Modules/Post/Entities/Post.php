@@ -32,4 +32,11 @@ class Post extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    protected static function newFactory()
+    {
+        return \Modules\Post\Database\factories\PostFactory::new();
+    }
+
+
 }

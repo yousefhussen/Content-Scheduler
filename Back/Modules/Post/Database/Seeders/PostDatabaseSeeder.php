@@ -2,8 +2,8 @@
 
 namespace Modules\Post\Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Seeder;
 
 class PostDatabaseSeeder extends Seeder
 {
@@ -17,6 +17,8 @@ class PostDatabaseSeeder extends Seeder
         Model::unguard();
 
         // $this->call("OthersTableSeeder");
-        $this->call(PlatformSeeder::class);
+        $this->call([
+            PostSeeder::class,
+        ]);
     }
 }

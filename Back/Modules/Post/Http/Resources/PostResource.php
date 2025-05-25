@@ -19,7 +19,12 @@ class PostResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'message_content' => $this->message_content,
-            'image_url' => $this->image_url,
+//            $path = $image->store('posts', 'public');
+//                $imageUrls[] = asset('storage/' . $path);
+//        path to url
+            'image_url' => collect(explode(',', $this->image_url))
+                ->map(fn($url) => url($url))
+                ->implode(','),
             'scheduled_time' => $this->scheduled_time,
             'status' => $this->status,
             'created_at' => $this->created_at,

@@ -2,10 +2,14 @@
 
 namespace Modules\Post\Http\Requests;
 
+use Carbon\Carbon;
+use Dflydev\DotAccessData\Data;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Validation\Rule;
 use Modules\Post\Entities\PostUser;
+use Modules\Post\Rules\NotInThePast;
 
 class StorePostRequest extends FormRequest
 {
@@ -19,15 +23,54 @@ class StorePostRequest extends FormRequest
         $this->merge([
             'user_id' => Auth::id(),
         ]);
+        if (!$this->has('status')) {
+
+            $this->merge([
+                'status' => 'draft'
+            ]);
+        }
+        if ($this->has('scheduled_time') && $this->input('status') !== 'scheduled') {
+            $this->merge([
+                'status' => 'scheduled'
+            ]);
+        }
     }
 
     public function rules(): array
     {
-        $rules= [
+        $rules = [
             'title' => 'required|string|max:255',
             'message_content' => 'required|string',
-            'image_url' => 'nullable|url',
-            'scheduled_time' => 'nullable|date|date_format:Y-m-d H:i:s',
+            'images' => 'nullable|array|max:5',
+            'images.*' => 'file|mimes:jpg,jpeg,png,gif|max:2048', // 2MB max for each image
+            'status' => [
+                'nullable',
+                Rule::requiredIf(function () {
+                    return !$this->input('scheduled_time');
+                }),
+                Rule::in(['draft', 'published', 'scheduled']),
+            ],
+            'scheduled_time' => [
+                Rule::requiredIf(function () {
+                    return $this->input('status') === 'scheduled';
+                }),
+                'date_format:Y-m-d H:i:s',
+                new NotInThePast(),
+                function ($attribute, $value, $fail) {
+                    if ($value) {
+                        $userId = Auth::id();
+                        $scheduledPostsToday = \Modules\Post\Entities\Post::where('user_id', $userId)
+                            ->where('status', 'scheduled')
+                            ->whereDate('created_at', now()->toDateString())
+                            ->count();
+
+                        if ($scheduledPostsToday >= 10) {
+                            $fail("You can only schedule 10 posts per day.");
+                        }
+                    }
+                },
+            ],
+
             'platforms' => 'required|array',
             'platforms.*' => [
                 'exists:platforms,id',
@@ -47,7 +90,6 @@ class StorePostRequest extends FormRequest
             ],
         ];
 
-
         // Retrieve platforms from the request
         $platforms = $this->input('platforms', []); // Explicitly fetch the platforms input
 
@@ -56,20 +98,7 @@ class StorePostRequest extends FormRequest
             $this->applyPlatformConstraints($rules, $platform);
         }
 
-        // Add custom validation for scheduled posts limit
-        $rules['scheduled_time'] = function ($attribute, $value, $fail) {
-            if ($value) {
-                $userId = Auth::id();
-                $scheduledPostsToday = \Modules\Post\Entities\Post::where('user_id', $userId)
-                    ->where('status', 'scheduled')
-                    ->whereDate('created_at', now()->toDateString()) // Changed to created_at
-                    ->count();
 
-                if ($scheduledPostsToday >= 10) {
-                    $fail("You can only schedule 10 posts per day.");
-                }
-            }
-        };
 
         return $rules;
     }

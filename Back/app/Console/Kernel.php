@@ -4,9 +4,13 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Modules\Post\Console\SeedPostsCommand;
 
 class Kernel extends ConsoleKernel
 {
+    protected $commands = [
+        SeedPostsCommand::class, // Register the custom command
+    ];
     /**
      * Define the application's command schedule.
      */
@@ -14,6 +18,7 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->command('process:due-posts')->everyMinute();
+
     }
 
     /**
@@ -24,5 +29,6 @@ class Kernel extends ConsoleKernel
         $this->load(__DIR__.'/Commands');
 
         require base_path('routes/console.php');
+
     }
 }

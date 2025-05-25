@@ -6,6 +6,8 @@ import { LoginComponent } from './pages/login/login.component';
 import { GuestGuard } from './guards/guest.guard';
 import { RegisterComponent } from './pages/register/register.component';
 import { PublishComponent } from './publish/publish.component';
+import { PlatformsComponent } from './platforms/platforms.component';
+import { LogsComponent } from './logs/logs.component';
 
 const routes: Routes = [
   { path: '', component: DashboardComponent, canActivate: [AuthGuard] },
@@ -13,6 +15,8 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [GuestGuard] },
   { path: 'register', component: RegisterComponent, canActivate: [GuestGuard] },
   { path: 'publish', component: PublishComponent, canActivate: [AuthGuard] },
+  { path: 'platforms', component: PlatformsComponent, canActivate: [AuthGuard] },
+  { path: 'logs', component: LogsComponent, canActivate: [AuthGuard] },
 ];
 
 @NgModule({

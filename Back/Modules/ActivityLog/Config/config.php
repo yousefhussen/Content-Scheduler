@@ -5,15 +5,20 @@ return [
     'loggable_actions' => [
         'POST' => [
             'posts' => 'Added Post',
-
+            'posts/{post}' => 'Updated Post',
+            'platforms/SetStatus' => 'Set Platform Status',
         ],
         'PUT' => [
-            'posts/{id}' => 'Updated Post',
-
+            'posts/{post}/publish' => 'Published Post',
         ],
         'DELETE' => [
-            'posts/{id}' => 'Deleted Post',
-
+            'posts/{post}' => 'Deleted Post',
+        ],
+        'GET' => [
+            'posts/scheduled' => 'Viewed Scheduled Posts',
+            'platforms' => 'Viewed Platforms',
+            'platforms/user' => 'Viewed User Platforms',
         ],
     ],
+
 ];

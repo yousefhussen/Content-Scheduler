@@ -1,0 +1,17 @@
+/* Add these classes to your tailwind.config.js if needed */
+.dot {
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .peer:checked ~ .dot {
+    transform: translateX(1.25rem);
+  }
+  
+  .peer:checked ~ .toggle-bg {
+    background-color: #8A0064;
+  }
+  /* Add this if Tailwind isn't configured properly */
+.peer:checked ~ div > div {
+    transform: translateX(1.25rem);
+  }
