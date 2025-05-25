@@ -1,0 +1,10 @@
+<div class="flex justify-center mt-4 w-full">
+  <button (click)="openEditor()" class="mb-4 px-4 py-2 bg-[#8A0064] text-white rounded hover:bg-[#6B246B]">
+    Create New Post
+  </button>
+</div>
+
+
+<app-post-editor *ngIf="editorOpen" [post]="editingPost" (save)="handleSave($event)" (cancel)="closeEditor()">
+</app-post-editor>
+<app-calendar-list></app-calendar-list>

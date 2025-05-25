@@ -1,0 +1,168 @@
+<!-- Tab Switcher -->
+<div class="flex gap-2 mb-4 max-w-screen-2xl mx-auto">
+    <button (click)="activeView = 'calendar'" [class.bg-pink-700]="activeView === 'calendar'"
+        [class.text-white]="activeView === 'calendar'"
+        class="px-4 py-2 rounded bg-gray-200 hover:bg-pink-100 transition">Calendar View</button>
+    <button (click)="activeView = 'list'" [class.bg-pink-700]="activeView === 'list'"
+        [class.text-white]="activeView === 'list'"
+        class="px-4 py-2 rounded bg-gray-200 hover:bg-pink-100 transition">List
+        View</button>
+
+</div>
+<!-- Filters for List View -->
+<div *ngIf="activeView === 'list'" class="mb-4 flex gap-4 max-w-screen-2xl mx-auto">
+    <select [(ngModel)]="filterStatus" class="border rounded px-2 py-1">
+        <option value="">All Statuses</option>
+        <option value="published">Published</option>
+        <option value="scheduled">Scheduled</option>
+        <option value="draft">Draft</option>
+    </select>
+    <select [(ngModel)]="filterPlatform" class="border rounded px-2 py-1">
+        <option value="">All Platforms</option>
+        <option *ngFor="let platform of availablePlatforms" [value]="platform">{{ platform }}</option>
+    </select>
+</div>
+
+
+
+
+<!-- List View -->
+<div class="max-w-screen-2xl mx-auto bg-white rounded-lg shadow-sm border border-gray-100"
+    *ngIf="activeView === 'list' && !isLoading">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title
+                    </th>
+                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status
+                    </th>
+                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Platform(s)</th>
+                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Scheduled
+                        Time</th>
+                    <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                <tr *ngFor="let post of filteredPosts()" class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ post.title }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span [ngClass]="{
+                'bg-green-100 text-green-800': post.status === 'published',
+                'bg-yellow-100 text-yellow-800': post.status === 'scheduled',
+                'bg-gray-100 text-gray-800': post.status === 'draft'
+              }" class="px-3 py-1 rounded-full text-xs font-medium">
+                            {{ post.status | titlecase }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex space-x-2">
+                            <span *ngFor="let platform of post.platforms"
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#8A0064] text-white">
+                                {{ platform.name }}
+                            </span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ post.scheduled_time | date:'MMM d, y, h:mm a' }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button (click)="onEditEvent(post)" class="text-[#8A0064] hover:text-[#6B246B] mr-4">
+                            <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                        </button>
+                        <button (click)="onPublishEvent(post)" class="text-green-600 hover:text-green-800"
+                            *ngIf="post.status !== 'published'">
+                            <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div *ngIf="isLoading" class="p-8 text-center text-gray-500">
+    Loading posts...
+</div>
+
+<div *ngIf="!isLoading && filteredPosts().length === 0" class="p-8 text-center text-gray-500">
+    No posts found
+</div>
+
+<!-- Calendar View -->
+<div class="max-w-screen-2xl mx-auto" *ngIf="activeView === 'calendar'">
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex flex-wrap gap-4 mb-6">
+            <!-- Status Filter -->
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-sm font-medium text-[#8A0064] mb-2">
+                    <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
+                    </svg>
+                    Filter by Status
+                </label>
+                <select [(ngModel)]="filterStatus" (change)="updateCalendarEvents()"
+                    class="w-full px-3 py-2 border border-[#EE82EE] rounded-md focus:ring-2 focus:ring-[#8A0064] focus:border-[#8A0064] text-gray-700">
+                    <option value="">All Statuses</option>
+                    <option value="published" class="text-green-600">Published</option>
+                    <option value="scheduled" class="text-yellow-600">Scheduled</option>
+                    <option value="draft" class="text-gray-600">Draft</option>
+                </select>
+            </div>
+
+            <!-- Platform Filter -->
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-sm font-medium text-[#8A0064] mb-2">
+                    <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+                    </svg>
+                    Filter by Platform
+                </label>
+                <select [(ngModel)]="filterPlatform" (change)="updateCalendarEvents()"
+                    class="w-full px-3 py-2 border border-[#EE82EE] rounded-md focus:ring-2 focus:ring-[#8A0064] focus:border-[#8A0064] text-gray-700">
+                    <option value="">All Platforms</option>
+                    <option *ngFor="let platform of availablePlatforms" [value]="platform" class="capitalize">{{
+                        platform }}</option>
+                </select>
+            </div>
+        </div>
+
+        <h3 class="text-gray-700 font-semibold mb-4">Scheduled Posts Calendar</h3>
+        <full-calendar [options]="calendarOptions" [events]="calendarEvents" class="w-full">
+        </full-calendar>
+    </div>
+</div>
+
+
+<!-- Event Popup Modal -->
+<div *ngIf="showEventPopup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white p-8 rounded-lg shadow-lg min-w-[300px] max-w-[90vw]">
+        <h4 class="text-xl font-bold mb-4">{{ selectedEvent.title }}</h4>
+        <p class="mb-2"><span class="font-semibold">Status:</span> {{ selectedEvent.status }}</p>
+        <p class="mb-2"><span class="font-semibold">Platforms:</span>
+            <span *ngFor="let platform of selectedEvent.platforms; let last = last">
+                {{ platform.name }}<span *ngIf="!last">, </span>
+            </span>
+        </p>
+        <p class="mb-4"><span class="font-semibold">Start:</span> {{ selectedEvent.start | date:'medium' }}</p>
+
+        <div class="flex gap-2">
+            <button (click)="onEditEvent(selectedEvent)"
+                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">Edit</button>
+            <button (click)="onPublishEvent(selectedEvent)"
+                class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">Publish</button>
+            <button (click)="showEventPopup = false"
+                class="px-4 py-2 bg-pink-700 text-white rounded hover:bg-pink-800 transition">Close</button>
+        </div>
+    </div>
+</div>

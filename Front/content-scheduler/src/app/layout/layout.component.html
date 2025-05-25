@@ -1,0 +1,18 @@
+<!-- layout.component.html -->
+<div class="min-h-screen flex bg-gray-100 flex-col">
+  <!-- Header -->
+  <header class="w-full bg-white z-50">
+    <div class="w-full p-4 bg-[#8A0064] shadow-md">
+
+    <app-navbar></app-navbar>
+    </div>
+  </header>
+
+  <!-- Optional Breadcrumb Section -->
+  <ng-content select="[breadcrumb]"></ng-content>
+
+  <!-- Main Content -->
+  <main class="flex-1 w-full">
+    <router-outlet></router-outlet>
+  </main>
+</div>

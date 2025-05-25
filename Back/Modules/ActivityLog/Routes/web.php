@@ -11,6 +11,6 @@
 |
 */
 
-Route::prefix('activitylog')->group(function() {
+Route::prefix('activitylog')->middleware('auth')->group(function() {
     Route::get('/', 'ActivityLogController@index');
 });

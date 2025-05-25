@@ -34,12 +34,19 @@ class AnalyticsController extends Controller
         $publishedCount = $publishedPosts;
         $draftCount = Post::where('user_id', $userId)->where('status', 'draft')->count();
 
+        // created posts today
+        $scheduledToday = Post::where('user_id', $userId)
+            ->where('status', 'scheduled')
+            ->whereDate('created_at', now()->toDateString())
+            ->count();
+
         return response()->json([
             'posts_per_platform' => $postsPerPlatform,
             'publishing_success_rate' => round($successRate, 2),
             'scheduled_count' => $scheduledCount,
             'published_count' => $publishedCount,
             'draft_count' => $draftCount,
+            'scheduled_today' => $scheduledToday,
         ]);
     }
 }

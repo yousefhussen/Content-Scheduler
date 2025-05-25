@@ -1,0 +1,72 @@
+<!-- dashboard.component.html -->
+<div class="w-full p-6 bg-gray-100 min-h-screen">
+  <!-- Analytics Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 max-w-screen-2xl mx-auto">
+    <!-- Posts per Platform -->
+    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-[#8A0064]">
+      <h3 class="text-gray-500 text-sm font-medium">Posts per Platform</h3>
+      <div class="mt-4">
+        <div *ngFor="let platform of platformStats" class="flex justify-between items-center py-2">
+          <span class="text-gray-600">{{ platform.name }}</span>
+          <span class="font-semibold text-[#8A0064]">{{ platform.count }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Publishing Success Rate -->
+    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-[#EE82EE]">
+      <h3 class="text-gray-500 text-sm font-medium">Success Rate</h3>
+      <div class="mt-4 flex items-center justify-between">
+        <div class="text-3xl font-bold text-[#8A0064]">
+          {{ successRate }}%
+        </div>
+        <div [ngClass]="successRate >= 30 ? 'bg-green-100' : 'bg-yellow-100'" class="px-3 py-1 rounded-full text-sm">
+          {{ successRate >= 30 ? 'Excellent' : 'Needs Attention' }}
+        </div>
+      </div>
+      <div class="mt-4 h-2 bg-gray-200 rounded-full">
+        <div class="h-2 bg-[#EE82EE] rounded-full" [style.width.%]="successRate"></div>
+      </div>
+    </div>
+
+    <!-- Scheduled vs Published -->
+    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-[#FFB6C1]">
+      <h3 class="text-gray-500 text-sm font-medium">Post Status</h3>
+      <div class="mt-4 space-y-4">
+        <div class="flex items-center">
+          <div class="w-2 h-2 bg-[#8A0064] rounded-full mr-2"></div>
+          <span class="text-gray-600 flex-1">Scheduled</span>
+          <span class="font-semibold text-[#8A0064]">{{ scheduledCount }}</span>
+        </div>
+        <div class="flex items-center">
+          <div class="w-2 h-2 bg-[#EE82EE] rounded-full mr-2"></div>
+          <span class="text-gray-600 flex-1">Published</span>
+          <span class="font-semibold text-[#8A0064]">{{ publishedCount }}</span>
+        </div>
+        
+        <div class="flex items-center">
+          <div class="w-2 h-2 bg-[#FFB6C1] rounded-full mr-2"></div>
+          <span class="text-gray-600 flex-1">Draft</span>
+          <span class="font-semibold text-[#8A0064]">{{ draftCount }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rate Limit -->
+    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-[#DDA0DD]">
+      <h3 class="text-gray-500 text-sm font-medium">Daily Limit</h3>
+      <div class="mt-4">
+        <div class="text-3xl font-bold text-[#8A0064]">
+          {{ scheduledToday }}/10
+        </div>
+        <div class="mt-2 text-sm text-gray-500">
+          Posts scheduled today
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <app-calendar-list></app-calendar-list>
+
+</div>
+

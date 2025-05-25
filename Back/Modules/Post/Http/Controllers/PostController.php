@@ -90,4 +90,16 @@ class PostController extends Controller
 
         return response()->json(['message' => 'Post deleted successfully']);
     }
+
+
+    public function getScheduledPosts(Request $request)
+    {
+        $scheduledPosts = Post::where('user_id', Auth::id())
+            ->whereNotNull('scheduled_time')
+            ->where('status', 'scheduled')
+            ->orderBy('scheduled_time', 'asc')
+            ->paginate(10);
+
+        return new PostCollection($scheduledPosts);
+    }
 }

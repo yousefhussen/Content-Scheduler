@@ -10,6 +10,8 @@ use Modules\Post\Http\Controllers\PostController;
 Route::prefix('posts')->middleware('auth')->group(function () {
     Route::get('/', [PostController::class, 'index']);
     Route::post('/', [PostController::class, 'store']);
+    //get scheduled posts
+    Route::get('/scheduled', [PostController::class, 'getScheduledPosts']);
     //change to put
     Route::post('/{post}', [PostController::class, 'update']);
     Route::delete('/{post}', [PostController::class, 'destroy']);
