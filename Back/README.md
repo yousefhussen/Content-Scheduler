@@ -1,114 +1,124 @@
-# Post Management System
 
-This project is a Laravel-based application for managing posts, platforms, and analytics. It includes features like post creation, scheduling, platform-specific constraints, and analytics for user activity.
+# Backend for Post Management System
 
-## Installation Instructions
+This is the backend of the Post Management System, built using Laravel 10. Below is an overview of the Laravel version, packages used, installation instructions, and key features.
 
-1. **Clone the Repository**:
+---
+
+## Laravel Version and Packages
+
+- **Laravel Version**: 10
+- **Key Packages**:
+  - **Sanctum**: Used for authentication with session cookies instead of tokens, as it is more appropriate for this simple task.
+  - **Nwidart Laravel Modules**: Implements the HMVC (Hierarchical Model-View-Controller) design pattern for modular development.
+
+---
+
+## Features
+
+### Core Features
+- **Authentication**:
+  - User login and registration using Laravel Sanctum.
+  - Basic user profile management.
+- **Post Management**:
+  - Create, update, and delete posts with platform selection.
+  - Schedule posts for future publication.
+  - Filter posts by status and date.
+- **Platform Management**:
+  - List available platforms.
+  - Toggle active platforms for a user.
+- **Post Scheduling**:
+  - Laravel command/job to process due posts.
+  - Mock the actual publishing process.
+- **Validation**:
+  - Handle basic validation for different platform requirements (e.g., character limits).
+
+### Creative Features
+- **Post Analytics**:
+  - Show posts per platform.
+  - Display publishing success rate.
+  - Provide counts for scheduled vs. published posts.
+- **Rate Limiting**:
+  - Restrict users to a maximum of 10 scheduled posts per day.
+- **Activity Logging**:
+  - Log panel showing user actions.
+- **Custom Feature**:
+  - Freedom to add any innovative feature that enhances the platform.
+
+---
+
+## Installation and Running the Project
+
+1. **Navigate to the Backend Folder**:
    ```bash
-   git clone <repository-url>
-   cd <repository-folder>
-    ```
-
-Here is a sample `README.md` file for your project:
-
-```markdown
-# Post Management System
-
-This project is a Laravel-based application for managing posts, platforms, and analytics. It includes features like post creation, scheduling, platform-specific constraints, and analytics for user activity.
-
-## Installation Instructions
-
-1. **Clone the Repository**:
-   ```bash
-   git clone <repository-url>
-   cd <repository-folder>
+   cd Back
    ```
 
 2. **Install Dependencies**:
-    - Install PHP dependencies using Composer:
-      ```bash
-      composer install
-      ```
-    - Install JavaScript dependencies using npm:
-      ```bash
-      npm install
-      ```
+   Use Composer to install the required PHP packages:
+   ```bash
+   composer install
+   ```
 
-3. **Set Up Environment**:
+3. **Set Up the `.env` File**:
     - Copy the `.env.example` file to `.env`:
       ```bash
       cp .env.example .env
       ```
-    - Update the `.env` file with your database and other configuration details.
-
-4. **Generate Application Key**:
-   ```bash
-   php artisan key:generate
-   ```
-
-5. **Run Migrations and Seeders**:
-    - Run database migrations:
+    - Update the `.env` file with the following:
+        - **Database Configuration**: Set up the database connection details.
+        - **Email Sender Configuration**: Configure the email sender settings.
+        - **Frontend URL**: Specify the frontend URL.
+        - **Session Domain**:
+            - Set to `null` if you are using Postman for testing.
+            - Set to `localhost` if testing locally in a browser.
+    - Generate the application key:
       ```bash
-      php artisan migrate
-      ```
-    - Seed the database (optional):
-      ```bash
-      php artisan db:seed
+      php artisan key:generate
       ```
 
-6. **Build Frontend Assets**:
-   ```bash
-   npm run dev
-   ```
-
-7. **Start the Development Server**:
+4. **Run the Server**:
+   Start the Laravel development server:
    ```bash
    php artisan serve
    ```
 
-8. **Access the Application**:
-   Open your browser and navigate to `http://localhost:8000`.
+---
+
+## Authentication
+
+- **Sanctum** is used for authentication with session cookies, not tokens.
+- This approach was chosen for simplicity and is suitable for this project.
 
 ---
 
-## Approach and Tradeoffs
+## Design Pattern
 
-### Approach
-1. **Modular Design**:
-    - The project is organized into modules (e.g., `Post`, `Analytics`) to ensure separation of concerns and maintainability.
-    - Each module contains its own controllers, models, requests, and resources.
+- The project follows the **HMVC (Hierarchical Model-View-Controller)** design pattern.
+- The **Nwidart Laravel Modules** package is used to organize the application into modules for better maintainability and scalability.
+- The **Auth Module** is reused from another project.
 
-2. **Validation and Constraints**:
-    - Validation rules are defined in request classes (`StorePostRequest`, `UpdatePostRequest`) to ensure data integrity.
-    - Platform-specific constraints are dynamically applied based on configuration.
+---
 
-3. **Analytics**:
-    - Analytics are calculated using Eloquent queries and grouped data for better performance and readability.
-    - A dedicated resource class (`AnalyticsResource`) is used to format the analytics response.
+## Seeding and Scheduling
 
-4. **Factory and Seeder Usage**:
-    - Factories are used to generate test data, with dynamic attributes passed via the `state()` method.
-    - Seeders ensure that the database is populated with realistic data for testing.
+1. **Post Seeding**:
+    - A custom seeding command is available to generate posts for a specific user:
+      ```bash
+      php artisan posts:make <user_id>
+      ```
+    - Replace `<user_id>` with the ID of the user who will own the posts.
+    - Ensure you register a user first before running this command.
 
-5. **Error Handling**:
-    - Custom error messages and validation rules are implemented to provide clear feedback to users.
+2. **Scheduled Posts**:
+    - The scheduler command must be run to publish scheduled posts:
+      ```bash
+      php artisan schedule:work
+      ```
 
-### Tradeoffs
-1. **Dynamic Constraints**:
-    - While platform-specific constraints provide flexibility, they add complexity to the validation logic and require additional database queries.
+---
 
-2. **Eager Loading**:
-    - Eager loading (`with('platforms')`) improves performance by reducing N+1 query issues but may increase memory usage for large datasets.
+## Resources and Request Forms
 
-3. **Analytics Calculation**:
-    - Calculating analytics on the fly ensures real-time data but may impact performance for large datasets. Caching could be considered for optimization.
+- Appropriate resources and request forms have been created to handle validation and formatting for the application.
 
-4. **Scalability**:
-    - The current implementation is suitable for small to medium-sized applications. For larger systems, additional optimizations (e.g., job queues, caching) may be required.
-
-5. **Validation Rules**:
-    - Complex validation rules ensure data integrity but may make the code harder to maintain and debug.
-
-This approach balances flexibility, maintainability, and performance while addressing the core requirements of the project.
-```
