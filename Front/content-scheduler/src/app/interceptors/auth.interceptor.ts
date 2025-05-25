@@ -39,12 +39,10 @@ export class AuthInterceptor implements HttpInterceptor {
         tap(event => {
           // Handle success responses
 
-          console.log('Success response:', event , "for request", req);
         }),
         catchError((error: HttpErrorResponse) => {
           //don't show unauthorized notifaction error
           if (error.status === 401) {
-            console.log('Unauthorized, redirecting to login...');
             // Redirect to login page
           }
           else{
@@ -56,17 +54,13 @@ export class AuthInterceptor implements HttpInterceptor {
       );
     } else {
       // If CSRF token is not set, make a request to get it
-      console.log('CSRF token not found, requesting new token...');
       return this.http.get(environment.apiUrl + '/sanctum/csrf-cookie', { withCredentials: true }).pipe(
         switchMap(() => {
-          console.log('CSRF cookie set');
           // Retry the original request with the new CSRF token
           const newCsrfToken = this.getCookie('XSRF-TOKEN');
           if (!newCsrfToken) {
-            console.error('Failed to retrieve CSRF token after requesting it.');
             return throwError('Failed to retrieve CSRF token.');
           }
-          console.log('New CSRF token found:', newCsrfToken);
           let authReq = req.clone({
             withCredentials: true, // Include cookies
             setHeaders: {
@@ -90,7 +84,6 @@ export class AuthInterceptor implements HttpInterceptor {
           );
         }),
         catchError(error => {
-          console.error('Error fetching CSRF token:', error);
           this.notificationService.showError('Error fetching CSRF token');
           return throwError(error);
         })

@@ -169,9 +169,11 @@ export class PostEditorComponent implements OnInit, OnChanges {
       let request$;
       if (this.post && this.post.id) {
         // EDIT/UPDATE
+        console.log('Updating post', this.post.id);
         request$ = this.postService.updatePost(this.post.id, formData);
       } else {
         // CREATE/ADD
+        console.log('Creating post');
         request$ = this.postService.savePost(formData);
       }
 
