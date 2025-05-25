@@ -25,7 +25,6 @@ export class LoginComponent {
     if (this.loginForm.valid) {
       this.authService.login(this.loginForm.value.email!, this.loginForm.value.password!).subscribe({
         next: () => setTimeout(() => this.router.navigate(['dashboard']), 1000),
-        error: (err) => alert(err.message)
       });
     }
   }

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Modules\Auth\Entities\User;
+use Modules\Auth\Http\Requests\RegisterRequest;
 use Modules\Auth\Http\Resources\UserResource;
 use Modules\Auth\Mail\CodeMail;
 
@@ -21,16 +22,8 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): \Illuminate\Http\JsonResponse
+    public function store(RegisterRequest $request): \Illuminate\Http\JsonResponse
     {
-
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'profile_picture' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'], // Validation for profile picture
-        ]);
-
         $profilePicturePath = null;
 
         // Handle profile picture upload
@@ -38,11 +31,11 @@ class RegisteredUserController extends Controller
 
             $profilePicturePath = $request->file('profile_picture')->store('profile_pictures', 'public');
         }
-
+        $valaidatedData = $request->validated();
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'name' => $valaidatedData['name'],
+            'email' =>  $valaidatedData['email'],
+            'password' => Hash::make($valaidatedData['password']),
             'profile_picture' => $profilePicturePath, // Save the file path
         ]);
 
@@ -56,7 +49,10 @@ class RegisteredUserController extends Controller
             ]);
             Mail::to($user->email)->send(new CodeMail($user));
         } else {
-            event(new Registered($user));
+            if (config('auth.verify_user_email')) {
+                event(new Registered($user));
+            }
+
         }
 
 

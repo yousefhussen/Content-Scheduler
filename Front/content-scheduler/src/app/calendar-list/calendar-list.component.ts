@@ -82,7 +82,6 @@ export class CalendarListComponent {
           // Refresh posts/calendar after publishing
           this.loadCalendarEvents();
         },
-        error: (err) => alert('Failed to publish post: ' + err.message)
       });
     }
   }
@@ -178,7 +177,6 @@ export class CalendarListComponent {
           // Optionally, close any popup/modal
           this.showEventPopup = false;
         },
-        error: (err) => alert('Failed to delete post: ' + err.message)
       });
     }
   }

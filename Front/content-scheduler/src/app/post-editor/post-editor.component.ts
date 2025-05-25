@@ -182,9 +182,6 @@ export class PostEditorComponent implements OnInit, OnChanges {
           this.imagePreviewUrls = [];
           this.save.emit(formValue);
         },
-        error: (err) => {
-          alert(err.message);
-        }
       });
     } else {
       console.log(this.postForm.errors);

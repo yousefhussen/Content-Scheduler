@@ -32,8 +32,7 @@ export class RegisterComponent {
     if (this.registerForm.valid) {
       console.log(this.registerForm.value);
       this.authService.register(this.registerForm.value.name!, this.registerForm.value.email!, this.registerForm.value.password!, this.registerForm.value.passwordConfirm!).subscribe({
-        next: () => this.router.navigate(['/dashboard']),
-        error: (err) => alert(err.message)
+        next: () => setTimeout(() => this.router.navigate(['dashboard']), 2000),
       });
     }
   }

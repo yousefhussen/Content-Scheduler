@@ -47,20 +47,52 @@ This is the backend of the Post Management System, built using Laravel 10. Below
 
 ---
 
+
+## Testing with Postman
+
+If the frontend is not working, you can use Postman to test the backend API. A Postman environment file has been provided for your convenience.
+
+1. **Open The Workspace**:
+   [Postman Environment File](<https://www.postman.com/iti-graduation-project-caseguard/workspace/contentscheduler>)
+
+
+2. **Start The Backend**:
+
+    - Ensure the Laravel backend is running by executing:
+      ```bash
+      php artisan serve
+      ```
+      
+
+3. **Session Domain**:
+    - Ensure the `SESSION_DOMAIN` in your `.env` file is set to `null` when testing with Postman.
+
+
+---
+
+
+
 ## Installation and Running the Project
 
-1. **Navigate to the Backend Folder**:
+clone the repository and follow these steps to set up the backend:
+
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/yousefhussen/Content-Scheduler
+   ```
+
+2. **Navigate to the Backend Folder**:
    ```bash
    cd Back
    ```
 
-2. **Install Dependencies**:
+3. **Install Dependencies**:
    Use Composer to install the required PHP packages:
    ```bash
    composer install
    ```
 
-3. **Set Up the `.env` File**:
+4. **Set Up the `.env` File**:
     - Copy the `.env.example` file to `.env`:
       ```bash
       cp .env.example .env
@@ -76,8 +108,13 @@ This is the backend of the Post Management System, built using Laravel 10. Below
       ```bash
       php artisan key:generate
       ```
+5. **Run Migrations**:
+   Run the database migrations to set up the necessary tables:
+   ```bash
+   php artisan migrate
+   ```
 
-4. **Run the Server**:
+6. **Run the Server**:
    Start the Laravel development server:
    ```bash
    php artisan serve

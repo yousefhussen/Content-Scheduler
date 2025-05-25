@@ -30,10 +30,6 @@
         <li *ngFor="let platform of platforms"
             class="group flex items-center justify-between p-4 border border-[#EE82EE] rounded-lg hover:border-[#8A0064] transition-colors">
             <div class="flex items-center gap-4">
-                <div class="w-10 h-10 bg-white rounded-lg p-1.5 border border-[#EE82EE]">
-                    <img *ngIf="platform.iconUrl" [src]="platform.iconUrl" [alt]="platform.name"
-                        class="w-full h-full object-contain" />
-                </div>
                 <span class="text-lg font-medium text-gray-700">{{ platform.name }}</span>
             </div>
 
