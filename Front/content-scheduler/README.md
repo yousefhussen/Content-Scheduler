@@ -60,6 +60,7 @@ The Content Scheduler lets users create, schedule, and manage posts for multiple
    ```
 
 2. **Install Dependencies**
+    Assuming you have node and npm installed
 
    ```bash
    npm install
